@@ -25,7 +25,7 @@ namespace CC {
         NULL_STMT,
     };
 
-    class Statement : public Infra::EnableShared<Statement> {
+    class Statement : public INFRA::EnableShared<Statement> {
     public:
         StatementType type;
     };

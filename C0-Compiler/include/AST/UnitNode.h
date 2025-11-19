@@ -16,7 +16,7 @@ namespace CC {
         TRANSLATION_UNIT,
     };
 
-    class Unit : public Infra::EnableShared<Unit> {
+    class Unit : public INFRA::EnableShared<Unit> {
     public:
         UnitType type;
     };
