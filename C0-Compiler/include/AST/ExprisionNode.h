@@ -16,11 +16,7 @@ namespace CC {
         BINARY_EXPR,
         UNARY_EXPR,
         CALL_EXPR,
-        CAST_EXPR,
-        CONDITIONAL_EXPR,
         ARRAY_SUBSCRIPT_EXPR,
-        MEMBER_ACCESS_EXPR,
-        COMMA_EXPR,
         IDENTIFIER_EXPR,
         INTEGER_LITERAL_EXPR,
         STRING_LITERAL_EXPR,
@@ -107,26 +103,6 @@ namespace CC {
         }
     };
 
-    // 条件表达式（三元运算符）
-    class ConditionalExpr : public ExpressionNode<ConditionalExpr> {
-    public:
-        std::shared_ptr<Expression> condition;
-        std::shared_ptr<Expression> thenExpr;
-        std::shared_ptr<Expression> elseExpr;
-
-        ConditionalExpr(std::shared_ptr<Expression> condition,
-                       std::shared_ptr<Expression> thenExpr,
-                       std::shared_ptr<Expression> elseExpr)
-            : ExpressionNode<ConditionalExpr>(ExpressionType::CONDITIONAL_EXPR),
-              condition(std::move(condition)),
-              thenExpr(std::move(thenExpr)),
-              elseExpr(std::move(elseExpr)) {}
-
-        static bool classof(const Expression* node) {
-            return node->type == ExpressionType::CONDITIONAL_EXPR;
-        }
-    };
-
     // 数组下标表达式
     class ArraySubscriptExpr : public ExpressionNode<ArraySubscriptExpr> {
     public:
@@ -144,26 +120,6 @@ namespace CC {
         }
     };
 
-    // 成员访问表达式
-    class MemberAccessExpr : public ExpressionNode<MemberAccessExpr> {
-    public:
-        std::shared_ptr<Expression> base;
-        std::string member;
-        bool isPointerAccess; // true表示使用->，false表示使用.
-
-        MemberAccessExpr(std::shared_ptr<Expression> base,
-                        std::string  member,
-                        bool isPointerAccess)
-            : ExpressionNode<MemberAccessExpr>(ExpressionType::MEMBER_ACCESS_EXPR),
-              base(std::move(base)),
-              member(std::move(member)),
-              isPointerAccess(isPointerAccess) {}
-
-        static bool classof(const Expression* node) {
-            return node->type == ExpressionType::MEMBER_ACCESS_EXPR;
-        }
-    };
-
     // 函数调用表达式
     class CallExpr : public ExpressionNode<CallExpr> {
     public:
@@ -178,37 +134,6 @@ namespace CC {
 
         static bool classof(const Expression* node) {
             return node->type == ExpressionType::CALL_EXPR;
-        }
-    };
-
-    // 逗号表达式
-    class CommaExpr : public ExpressionNode<CommaExpr> {
-    public:
-        std::vector<std::shared_ptr<Expression>> expressions;
-
-        explicit CommaExpr(std::vector<std::shared_ptr<Expression>> expressions)
-            : ExpressionNode<CommaExpr>(ExpressionType::COMMA_EXPR),
-              expressions(std::move(expressions)) {}
-
-        static bool classof(const Expression* node) {
-            return node->type == ExpressionType::COMMA_EXPR;
-        }
-    };
-
-    // 强制类型转换表达式
-    class CastExpr : public ExpressionNode<CastExpr> {
-    public:
-        std::string targetType;
-        std::shared_ptr<Expression> operand;
-
-        CastExpr(std::string  targetType,
-                std::shared_ptr<Expression> operand)
-            : ExpressionNode<CastExpr>(ExpressionType::CAST_EXPR),
-              targetType(std::move(targetType)),
-              operand(std::move(operand)) {}
-
-        static bool classof(const Expression* node) {
-            return node->type == ExpressionType::CAST_EXPR;
         }
     };
 

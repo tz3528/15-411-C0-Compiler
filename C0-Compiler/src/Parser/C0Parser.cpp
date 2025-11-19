@@ -19,15 +19,6 @@ namespace CC {
 
     }
 
-    /**
-     * @brief 解析声明语句
-     * 
-     * 通过查看第3个token来判断是函数声明还是变量声明：
-     * - 如果第3个token是左括号'('，则是函数声明
-     * - 否则是变量声明
-     * 
-     * @return 返回解析得到的声明节点
-     */
     std::shared_ptr<Declaration> C0Parser::parseDeclaration() {
         Token mark = peek(3);
         if (mark.type == TokenType::LPAREN) {
@@ -39,14 +30,6 @@ namespace CC {
         return parseVariableDeclaration();
     }
 
-    /**
-     * @brief 解析函数声明
-     * 
-     * 函数声明格式：返回类型 函数名(参数列表) {函数体}
-     * 例如：int func(int a, int b) { ... }
-     * 
-     * @return 返回函数声明节点
-     */
     std::shared_ptr<Declaration> C0Parser::parseFunctionDeclaration() {
         Token type = advance(1);
         Token name = advance(1);
@@ -66,14 +49,6 @@ namespace CC {
         return std::make_shared<FunctionDecl>(name.lexeme, type.lexeme, params, body);
     }
 
-    /**
-     * @brief 解析参数声明
-     * 
-     * 参数声明格式：类型 名称
-     * 例如：int a
-     * 
-     * @return 返回参数声明节点
-     */
     std::shared_ptr<Declaration> C0Parser::parseParamDecl() {
         Token type = advance(1);
         Token name = advance(1);
@@ -86,14 +61,6 @@ namespace CC {
         return std::make_shared<VariableDecl>(name.lexeme, type.lexeme, nullptr);
     }
 
-    /**
-     * @brief 解析变量声明
-     * 
-     * 变量声明格式：类型 变量名 [= 初始值];
-     * 例如：int a; 或 int b = 10;
-     * 
-     * @return 返回变量声明节点
-     */
     std::shared_ptr<Declaration> C0Parser::parseVariableDeclaration() {
         Token type = advance(1);
         Token name = advance(1);
