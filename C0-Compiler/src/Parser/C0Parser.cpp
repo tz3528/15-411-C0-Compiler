@@ -5,14 +5,112 @@
 #include "Parser/C0Parser.h"
 
 namespace CC {
-    std::shared_ptr<Expression> C0Parser::parseExpression() {
-        Token token =peek(1);
-        switch (token.type) {
+    std::shared_ptr<Expression> C0Parser::parseExpression(int minPrec) {
+        std::shared_ptr<Expression> left = parsePrefixExpression();
+        while (true) {
+            Token op = peek(1);
+            int prec = getInfixPrecedence(op.type);
 
-        default:
-            break;
+            // 不是中缀运算符 或者 优先级低于当前 minPrec，则停止
+            if (prec < minPrec || prec == 0) {
+                break;
+            }
+
+            // 处理结合性：右结合的右边用相同优先级，左结合的右边用 prec + 1
+            int nextMinPrec = isRightAssociative(op.type) ? prec : prec + 1;
+
+            advance(1); // 消耗运算符
+
+            // 右操作数递归调用 parseExpression
+            auto right = parseExpression(nextMinPrec);
+
+            // 根据是赋值还是普通二元，构建不同节点
+            if (op.type == TokenType::OP_ASSIGN) {
+                left = std::make_shared<AssignmentExpr>(left, right,op.type); // ASSIGNMENT_EXPR
+            } else {
+                left = std::make_shared<BinaryExpr>(left, right, op.type); // BINARY_EXPR
+            }
         }
-        return nullptr;
+
+        return left;
+    }
+
+    std::shared_ptr<Expression> C0Parser::parsePrefixExpression() {
+        Token token = advance(1);
+        switch (token.type) {
+        //一元表达式
+        case TokenType::OP_PLUS:
+        case TokenType::OP_MINUS:
+        case TokenType::OP_NOT: {
+            auto operand  = parsePrefixExpression();
+            return std::make_shared<UnaryExpr>(operand ,token.type);
+        }
+        //字面量常量
+        case TokenType::INT_LITERAL:
+            return std::make_shared<IntegerLiteralExpr>(std::stoi(token.lexeme));
+        case TokenType::CHAR_LITERAL:
+            return std::make_shared<CharLiteralExpr>(token.lexeme[0]);
+        case TokenType::STRING_LITERAL:
+            return std::make_shared<StringLiteralExpr>(token.lexeme);
+        case TokenType::BOOL_LITERAL:
+            return std::make_shared<BoolLiteralExpr>(token.lexeme == "true");
+        case TokenType::IDENTIFIER:
+            return std::make_shared<IdentifierExpr>(token.lexeme);
+        case TokenType::LPAREN: {
+            auto expr = parseExpression();
+            Token rparne = advance(1);
+            return rparne.type == TokenType::RPAREN ? expr : nullptr;
+        }
+        default:
+            //TODO: 错误处理
+            return nullptr;
+        }
+    }
+
+    int C0Parser::getInfixPrecedence(TokenType type) {
+        switch (type) {
+        case TokenType::OP_ASSIGN:
+            return 1;  // =
+        case TokenType::OP_OR:
+            return 2;  // ||
+        case TokenType::OP_AND:
+            return 3;  // &&
+        case TokenType::OP_EQ:
+        case TokenType::OP_NE:
+            return 4;  // == !=
+        case TokenType::OP_LT:
+        case TokenType::OP_GT:
+        case TokenType::OP_LE:
+        case TokenType::OP_GE:
+            return 5;  // < > <= >=
+        case TokenType::OP_PLUS:
+        case TokenType::OP_MINUS:
+            return 6;  // + -
+        case TokenType::OP_MULTIPLY:
+        case TokenType::OP_DIVIDE:
+        case TokenType::OP_MODULO:
+            return 7;  // * / %
+        default:
+            return 0;  // 0 表示“不是中缀运算符”
+        }
+    }
+
+    bool C0Parser::isRightAssociative(TokenType type) {
+        // 比如赋值、指数这些是右结合的
+        switch (type) {
+        case TokenType::OP_ASSIGN:
+        case TokenType::OP_MULTIPLY_ASSIGN:
+        case TokenType::OP_DIVIDE_ASSIGN:
+        case TokenType::OP_MODULO_ASSIGN:
+        case TokenType::OP_PLUS_ASSIGN:
+        case TokenType::OP_MINUS_ASSIGN:
+        case TokenType::OP_LOGICAL_AND:
+        case TokenType::OP_LOGICAL_OR:
+        case TokenType::OP_XOR:
+            return true;
+        default:
+            return false;
+        }
     }
 
     std::shared_ptr<Statement> C0Parser::parseStatement() {
@@ -88,6 +186,16 @@ namespace CC {
     }
 
     std::shared_ptr<CompoundStmt> C0Parser::parseCompoundStmt() {
-
+        Token lbrace = advance(1);
+        std::vector<std::shared_ptr<Statement>> statements;
+        while (peek(1).type != TokenType::RBRACE && peek(1).type != TokenType::END_OF_FILE) {
+            auto stmt = parseStatement();
+            statements.push_back(stmt);
+        }
+        if (peek(1).type == TokenType::RBRACE) {
+            advance(1);
+        } else {
+            //TODO: 错误处理
+        }
     }
 }

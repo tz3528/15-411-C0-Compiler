@@ -68,15 +68,11 @@ namespace CC {
     public:
         std::shared_ptr<Expression> operand;
         TokenType op;
-        bool prefix;
 
-        UnaryExpr(std::shared_ptr<Expression> operand,
-                 TokenType op,
-                 bool prefix)
+        UnaryExpr(std::shared_ptr<Expression> operand,TokenType op)
             : ExpressionNode<UnaryExpr>(ExpressionType::UNARY_EXPR),
               operand(std::move(operand)),
-              op(op),
-              prefix(prefix) {}
+              op(op){}
 
         static bool classof(const Expression* node) {
             return node->type == ExpressionType::UNARY_EXPR;
@@ -142,9 +138,9 @@ namespace CC {
     public:
         std::string name;
         
-        IdentifierExpr(const std::string& name)
+        explicit IdentifierExpr(std::string  name)
             : ExpressionNode<IdentifierExpr>(ExpressionType::IDENTIFIER_EXPR),
-              name(name) {}
+              name(std::move(name)) {}
               
         static bool classof(const Expression* node) {
             return node->type == ExpressionType::IDENTIFIER_EXPR;
@@ -156,7 +152,7 @@ namespace CC {
     public:
         int value;
         
-        IntegerLiteralExpr(int value) 
+        explicit IntegerLiteralExpr(int value)
             : ExpressionNode<IntegerLiteralExpr>(ExpressionType::INTEGER_LITERAL_EXPR),
               value(value) {}
               
@@ -170,9 +166,9 @@ namespace CC {
     public:
         std::string value;
         
-        StringLiteralExpr(const std::string& value) 
+        explicit StringLiteralExpr(std::string  value)
             : ExpressionNode<StringLiteralExpr>(ExpressionType::STRING_LITERAL_EXPR),
-              value(value) {}
+              value(std::move(value)) {}
               
         static bool classof(const Expression* node) {
             return node->type == ExpressionType::STRING_LITERAL_EXPR;
@@ -184,7 +180,7 @@ namespace CC {
     public:
         char value;
         
-        CharLiteralExpr(char value) 
+        explicit CharLiteralExpr(char value)
             : ExpressionNode<CharLiteralExpr>(ExpressionType::CHAR_LITERAL_EXPR),
               value(value) {}
               
@@ -198,7 +194,7 @@ namespace CC {
     public:
         bool value;
         
-        BoolLiteralExpr(bool value) 
+        explicit BoolLiteralExpr(bool value)
             : ExpressionNode<BoolLiteralExpr>(ExpressionType::BOOL_LITERAL_EXPR),
               value(value) {}
               
@@ -212,7 +208,7 @@ namespace CC {
     public:
         double value;
         
-        FloatLiteralExpr(double value) 
+        explicit FloatLiteralExpr(double value)
             : ExpressionNode<FloatLiteralExpr>(ExpressionType::FLOAT_LITERAL_EXPR),
               value(value) {}
               

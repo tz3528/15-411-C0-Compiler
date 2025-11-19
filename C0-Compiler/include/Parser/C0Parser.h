@@ -15,7 +15,7 @@ namespace CC {
          * @brief 构造函数，初始化词法分析器并读取所有token
          * @param file_path 要解析的源文件路径
          */
-        C0Parser(const std::string& file_path) {
+        explicit C0Parser(const std::string& file_path) {
             lexer = std::make_unique<C0Lexer>(file_path);
             while (true) {
                 tokens_.push_back(lexer->nextToken());
@@ -60,7 +60,13 @@ namespace CC {
          * @brief 解析表达式
          * @return 表达式的AST节点
          */
-        std::shared_ptr<Expression> parseExpression();
+        std::shared_ptr<Expression> parseExpression(int minPrec = 0);
+
+        std::shared_ptr<Expression> parsePrefixExpression();
+
+        static int getInfixPrecedence(TokenType type);
+
+        static bool isRightAssociative(TokenType type);
 
         /**
          * @brief 解析语句
@@ -73,23 +79,24 @@ namespace CC {
          * @return 返回当前的声明语句
          */
         std::shared_ptr<Declaration> parseDeclaration();
+
         /**
          *
          * @return 返回函数声明语句
          */
-        std::shared_ptr<Declaration> C0Parser::parseFunctionDeclaration();
+        std::shared_ptr<Declaration> parseFunctionDeclaration();
         
         /**
          * @brief 解析参数声明
          * @return 参数声明的AST节点
          */
-        std::shared_ptr<Declaration> C0Parser::parseParamDecl();
+        std::shared_ptr<Declaration> parseParamDecl();
         
         /**
          * @brief 解析变量声明
          * @return 变量声明的AST节点
          */
-        std::shared_ptr<Declaration> C0Parser::parseVariableDeclaration();
+        std::shared_ptr<Declaration> parseVariableDeclaration();
 
         /**
          * @brief 解析复合语句（代码块）
