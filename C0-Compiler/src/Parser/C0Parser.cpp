@@ -4,6 +4,8 @@
 
 #include "Parser/C0Parser.h"
 
+#include "Infra/casting.h"
+
 namespace CC {
     std::shared_ptr<Expression> C0Parser::parseExpression(int minPrec) {
         std::shared_ptr<Expression> left = parsePrefixExpression();
@@ -113,10 +115,6 @@ namespace CC {
         }
     }
 
-    std::shared_ptr<Statement> C0Parser::parseStatement() {
-
-    }
-
     std::shared_ptr<Declaration> C0Parser::parseDeclaration() {
         Token mark = peek(3);
         if (mark.type == TokenType::LPAREN) {
@@ -143,8 +141,13 @@ namespace CC {
         } else {
             // TODO: 错误处理
         }
-        std::shared_ptr<CompoundStmt> body = parseCompoundStmt();
-        return std::make_shared<FunctionDecl>(name.lexeme, type.lexeme, params, body);
+        std::shared_ptr<Statement> body = parseCompoundStmt();
+        return std::make_shared<FunctionDecl>(
+            name.lexeme,
+            type.lexeme,
+            params,
+            INFRA::dyn_cast<CompoundStmt>(body)
+        );
     }
 
     std::shared_ptr<Declaration> C0Parser::parseParamDecl() {
@@ -185,17 +188,80 @@ namespace CC {
         return std::make_shared<VariableDecl>(name.lexeme, type.lexeme, initializer);
     }
 
-    std::shared_ptr<CompoundStmt> C0Parser::parseCompoundStmt() {
-        Token lbrace = advance(1);
+    std::shared_ptr<Statement> C0Parser::parseStatement() {
+        Token token = peek(1);
+        switch (token.type) {
+        case TokenType::LBRACE:
+            return parseCompoundStmt();
+        case TokenType::KW_IF:
+            return parseIfStmt();
+        case TokenType::KW_ELSE:
+            return parseElseStmt();
+        case TokenType::KW_FOR:
+            return parseForStmt();
+        case TokenType::KW_WHILE:
+            return parseWhileStmt();
+        case TokenType::KW_DO:
+            return parseDowhileStmt();
+        case TokenType::KW_CONTINUE:
+            if (peek(1).type != TokenType::SEMICOLON) {
+                //TODO: 错误处理
+            }
+            return std::make_shared<ContinueStmt>();
+        case TokenType::KW_BREAK:
+            if (peek(1).type != TokenType::SEMICOLON) {
+                //TODO: 错误处理
+            }
+            return std::make_shared<BreakStmt>();
+        case TokenType::KW_RETURN:
+            return parseReturnStmt();
+        default:
+            break;
+        }
+        return nullptr;
+    }
+
+    std::shared_ptr<Statement> C0Parser::parseCompoundStmt() {
+        Token lbrace = peek(1);
+        if (lbrace.type != TokenType::LBRACE) {
+            //TODO: 错误处理
+        }
+        else {
+            advance(1);
+        }
         std::vector<std::shared_ptr<Statement>> statements;
         while (peek(1).type != TokenType::RBRACE && peek(1).type != TokenType::END_OF_FILE) {
             auto stmt = parseStatement();
             statements.push_back(stmt);
         }
-        if (peek(1).type == TokenType::RBRACE) {
-            advance(1);
-        } else {
+        if (advance(1).type != TokenType::RBRACE) {
             //TODO: 错误处理
         }
+
+        return std::make_shared<CompoundStmt>(std::move(statements));
+    }
+
+    std::shared_ptr<Statement> C0Parser::parseIfStmt() {
+
+    }
+
+    std::shared_ptr<Statement> C0Parser::parseElseStmt() {
+
+    }
+
+    std::shared_ptr<Statement> C0Parser::parseWhileStmt() {
+
+    }
+
+    std::shared_ptr<Statement> C0Parser::parseForStmt() {
+
+    }
+
+    std::shared_ptr<Statement> C0Parser::parseDowhileStmt() {
+
+    }
+
+    std::shared_ptr<Statement> C0Parser::parseReturnStmt() {
+
     }
 }

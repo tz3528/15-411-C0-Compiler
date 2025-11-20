@@ -69,12 +69,6 @@ namespace CC {
         static bool isRightAssociative(TokenType type);
 
         /**
-         * @brief 解析语句
-         * @return 语句的AST节点
-         */
-        std::shared_ptr<Statement> parseStatement();
-
-        /**
          * 通过看第三个符号来判断当前声明语句的类型
          * @return 返回当前的声明语句
          */
@@ -99,10 +93,25 @@ namespace CC {
         std::shared_ptr<Declaration> parseVariableDeclaration();
 
         /**
+         * @brief 解析语句
+         * @return 语句的AST节点
+         */
+        std::shared_ptr<Statement> parseStatement();
+
+        /**
          * @brief 解析复合语句（代码块）
          * @return 复合语句的AST节点
          */
-        std::shared_ptr<CompoundStmt> parseCompoundStmt();
+        std::shared_ptr<Statement> parseCompoundStmt();
+
+        std::shared_ptr<Statement> parseIfStmt();
+        std::shared_ptr<Statement> parseElseStmt();
+        std::shared_ptr<Statement> parseWhileStmt();
+        std::shared_ptr<Statement> parseForStmt();
+        std::shared_ptr<Statement> parseDowhileStmt();
+        std::shared_ptr<Statement> parseContinueStmt();
+        std::shared_ptr<Statement> parseBreakStmt();
+        std::shared_ptr<Statement> parseReturnStmt();
 
         std::unique_ptr<C0Lexer> lexer;           ///< 词法分析器
         std::unique_ptr<TranslationUnit> AST_root;///< 抽象语法树根节点

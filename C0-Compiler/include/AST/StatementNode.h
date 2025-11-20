@@ -60,9 +60,9 @@ namespace CC {
     // 复合语句（代码块）
     class CompoundStmt : public StatementNode<CompoundStmt> {
     public:
-        std::vector<std::shared_ptr<StatementNode>> statements;
+        std::vector<std::shared_ptr<Statement>> statements;
         
-        explicit CompoundStmt(std::vector<std::shared_ptr<StatementNode>> statements)
+        explicit CompoundStmt(std::vector<std::shared_ptr<Statement>> statements)
             : StatementNode<CompoundStmt>(StatementType::COMPOUND_STMT),
               statements(std::move(statements)) {}
               
