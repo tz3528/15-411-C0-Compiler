@@ -20,7 +20,8 @@ namespace CC {
     enum class DeclarationType {
         FUNCTION_DECL,
         VARIABLE_DECL,
-        PARAMETER_DECL
+        PARAMETER_DECL,
+        STRUCT_DECL
     };
 
     class Declaration : public INFRA::EnableShared<Declaration>{
@@ -41,17 +42,37 @@ namespace CC {
         }
     };
 
+    // 变量声明
+    class VariableDecl : public DeclarationNode<VariableDecl> {
+    public:
+        std::string name;
+        std::string type;
+        std::shared_ptr<Expression> initializer;
+
+        VariableDecl(std::string  name,
+                    std::string  type,
+                    std::shared_ptr<Expression> initializer)
+            : DeclarationNode<VariableDecl>(DeclarationType::VARIABLE_DECL),
+              name(std::move(name)),
+              type(std::move(type)),
+              initializer(std::move(initializer)) {}
+
+        static bool classof(const Declaration* decl) {
+            return decl->type == DeclarationType::VARIABLE_DECL;
+        }
+    };
+
     // 函数声明
     class FunctionDecl : public DeclarationNode<FunctionDecl> {
     public:
         std::string name;
         std::string returnType;
-        std::vector<std::shared_ptr<Declaration>> parameters;
+        std::vector<std::shared_ptr<VariableDecl>> parameters;
         std::shared_ptr<CompoundStmt> body;
 
         FunctionDecl(std::string  name,
                     std::string  returnType,
-                    std::vector<std::shared_ptr<Declaration>> parameters,
+                    std::vector<std::shared_ptr<VariableDecl>> parameters,
                     std::shared_ptr<CompoundStmt> body)
             : DeclarationNode<FunctionDecl>(DeclarationType::FUNCTION_DECL),
               name(std::move(name)),
@@ -64,23 +85,18 @@ namespace CC {
         }
     };
 
-    // 变量声明
-    class VariableDecl : public DeclarationNode<VariableDecl> {
+    // 结构体声明
+    class StructDecl : public DeclarationNode<StructDecl> {
     public:
         std::string name;
-        std::string type;
-        std::shared_ptr<Expression> initializer;
-        
-        VariableDecl(std::string  name,
-                    std::string  type,
-                    std::shared_ptr<Expression> initializer)
-            : DeclarationNode<VariableDecl>(DeclarationType::VARIABLE_DECL),
+        std::vector<std::shared_ptr<VariableDecl>> members;
+        StructDecl(std::string  name, std::vector<std::shared_ptr<VariableDecl>> members)
+            : DeclarationNode<StructDecl>(DeclarationType::STRUCT_DECL),
               name(std::move(name)),
-              type(std::move(type)),
-              initializer(std::move(initializer)) {}
-              
+              members(std::move(members)) {}
+
         static bool classof(const Declaration* decl) {
-            return decl->type == DeclarationType::VARIABLE_DECL;
+            return decl->type == DeclarationType::STRUCT_DECL;
         }
     };
 

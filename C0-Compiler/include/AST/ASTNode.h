@@ -14,6 +14,12 @@ namespace CC {
 
         template <typename Visitor>
         auto accept(Visitor& visitor) -> decltype(visitor.visit(std::declval<Derived&>()));
+
+#ifdef DEBUG
+        const Derived* self() const {
+            return static_cast<const Derived*>(this);
+        }
+#endif
     private:
         // 记录节点所包含的token范围
         int min_range = 0, max_range = 0;

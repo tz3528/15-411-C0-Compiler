@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "Lexer/C0Lexer.h"
+#include "Parser/C0Parser.h"
 
 int main(int argc, char* argv[]) {
     // 检查是否有输入参数
@@ -22,12 +23,15 @@ int main(int argc, char* argv[]) {
     }
 
     std::string file_path = argv[1];
-    std::cout<<file_path<<std::endl;
     CC::C0Lexer lexer(file_path);
-    CC::Token tocken;
-    while ((tocken = lexer.nextToken()).type!= CC::TokenType::END_OF_FILE) {
-        std::cout<<tocken.lexeme<<std::endl;
-    }
-
+    // while (true) {
+    //     auto token = lexer.nextToken();
+    //     if (token.type == CC::TokenType::END_OF_FILE) {
+    //         break;
+    //     }
+    //     std::cout<<token.lexeme<<std::endl;
+    // }
+    CC::C0Parser parser(file_path);
+    parser.parse();
     return 0;
 }

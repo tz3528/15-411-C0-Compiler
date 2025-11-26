@@ -9,6 +9,7 @@
 #include "Parser/parser.h"
 
 namespace CC {
+
     class C0Parser : public Parser<C0Parser> {
     public:
         /**
@@ -29,9 +30,11 @@ namespace CC {
          * @brief 解析整个程序，生成抽象语法树
          */
         void parse() {
-            while (position < tokens_.size()) {
-                AST_root->declarations.push_back(parseDeclaration());
+            std::vector<std::shared_ptr<Declaration>> declarations;
+            while (peek(1).type != TokenType::END_OF_FILE) {
+                declarations.push_back(parseDeclaration());
             }
+            AST_root = std::make_unique<TranslationUnit>(std::move(declarations));
         }
     private:
         /**
@@ -53,7 +56,29 @@ namespace CC {
          */
         Token advance(int k = 1) {
             position = position + k;
-            return tokens_[position];
+            return tokens_[position-k];
+        }
+
+        bool match(TokenType type) {
+            if (peek(0).type == type) {
+                advance(1);
+                return true;
+            }
+            return false;
+        }
+
+        static bool isTypeSpecifier(const Token& token) {
+            switch (token.type) {
+            case TokenType::KW_VOID:
+            case TokenType::KW_INT:
+            case TokenType::KW_CHAR:
+            case TokenType::KW_STRUCT:
+            case TokenType::KW_STRING:
+                return true;
+            default:
+                return false;
+            }
+
         }
 
         /**
@@ -63,6 +88,10 @@ namespace CC {
         std::shared_ptr<Expression> parseExpression(int minPrec = 0);
 
         std::shared_ptr<Expression> parsePrefixExpression();
+
+        std::shared_ptr<Expression> parsePrimary();
+
+        std::shared_ptr<Expression> parsePostfixExpression();
 
         static int getInfixPrecedence(TokenType type);
 
@@ -84,13 +113,15 @@ namespace CC {
          * @brief 解析参数声明
          * @return 参数声明的AST节点
          */
-        std::shared_ptr<Declaration> parseParamDecl();
+        std::shared_ptr<VariableDecl> parseParamDecl();
         
         /**
          * @brief 解析变量声明
          * @return 变量声明的AST节点
          */
         std::shared_ptr<Declaration> parseVariableDeclaration();
+
+        std::shared_ptr<Declaration> parseStructDeclaration();
 
         /**
          * @brief 解析语句
@@ -105,12 +136,9 @@ namespace CC {
         std::shared_ptr<Statement> parseCompoundStmt();
 
         std::shared_ptr<Statement> parseIfStmt();
-        std::shared_ptr<Statement> parseElseStmt();
         std::shared_ptr<Statement> parseWhileStmt();
         std::shared_ptr<Statement> parseForStmt();
         std::shared_ptr<Statement> parseDowhileStmt();
-        std::shared_ptr<Statement> parseContinueStmt();
-        std::shared_ptr<Statement> parseBreakStmt();
         std::shared_ptr<Statement> parseReturnStmt();
 
         std::unique_ptr<C0Lexer> lexer;           ///< 词法分析器

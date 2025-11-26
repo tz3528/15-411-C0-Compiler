@@ -21,7 +21,6 @@ namespace CC {
         {"for", TokenType::KW_FOR},
         {"continue", TokenType::KW_CONTINUE},
         {"break", TokenType::KW_BREAK},
-        {"assert", TokenType::KW_ASSERT},
         {"NULL", TokenType::KW_NULL},
         {"alloc", TokenType::KW_ALLOC},
         {"alloc_array", TokenType::KW_ALLOC_ARRAY},
